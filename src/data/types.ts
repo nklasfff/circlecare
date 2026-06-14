@@ -4,6 +4,7 @@ import type {
   Relation,
   TaskCategory,
   TaskStatus,
+  ThreadStatus,
 } from '@/types/database'
 
 export type { CoverageItem } from '@/types/database'
@@ -59,6 +60,12 @@ export interface NewMessageInput {
   thread_id: string
   author: string | null
   body: string
+}
+
+/** Felter der kan opdateres på en tråd. */
+export interface ThreadPatch {
+  title?: string
+  status?: ThreadStatus
 }
 
 /** Et familiemedlem klar til visning (navn + roller samlet). */

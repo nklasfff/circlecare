@@ -14,6 +14,7 @@ import type {
   NewTaskInput,
   NewThreadInput,
   TaskPatch,
+  ThreadPatch,
 } from './types'
 
 export function useFamilyId() {
@@ -168,6 +169,26 @@ export function useTracks(familyId: string | null | undefined) {
   })
 }
 
+/** Alle tråde i familien (på tværs af spor) — driver orkestratoren. */
+export function useFamilyThreads(familyId: string | null | undefined) {
+  const ds = useDataSource()
+  const query = useQuery({
+    queryKey: ['family-threads', familyId],
+    enabled: Boolean(familyId),
+    queryFn: () => ds.getFamilyThreads(familyId as string),
+  })
+
+  const { refetch } = query
+  useEffect(() => {
+    if (!familyId) return
+    return ds.subscribe(familyId, () => {
+      void refetch()
+    })
+  }, [ds, familyId, refetch])
+
+  return query
+}
+
 export function useThreads(
   familyId: string | null | undefined,
   trackId: string | null | undefined,
@@ -229,8 +250,16 @@ export function useCommunicationMutations() {
       void queryClient.invalidateQueries({ queryKey: ['threads'] })
     },
   })
+  const updateThread = useMutation({
+    mutationFn: (vars: { id: string; patch: ThreadPatch }) =>
+      ds.updateThread(vars.id, vars.patch),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['threads'] })
+      void queryClient.invalidateQueries({ queryKey: ['family-threads'] })
+    },
+  })
 
-  return { createThread, sendMessage }
+  return { createThread, sendMessage, updateThread }
 }
 
 /** Slå et medlems-navn op ud fra membership-id. */

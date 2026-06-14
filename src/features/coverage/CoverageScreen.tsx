@@ -14,6 +14,7 @@ import {
   memberName,
 } from '@/data/hooks'
 import { useActiveMember } from '@/features/identity/ActiveMemberProvider'
+import { WeeklyDigest } from '@/features/orchestrator/WeeklyDigest'
 
 function eachDay(items: CoverageItem[]): { day: Date; items: CoverageItem[] }[] {
   const groups: { day: Date; items: CoverageItem[] }[] = []
@@ -76,6 +77,7 @@ export function CoverageScreen() {
 
       {!isLoading && !isError && (
         <>
+          <WeeklyDigest items={items ?? []} familyId={familyId} />
           <Section title="I dag">
             {todayGroup && todayGroup.items.length > 0 ? (
               todayGroup.items.map((item) => (

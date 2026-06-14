@@ -57,7 +57,8 @@ i [`supabase/`](supabase/) som forberedelse.
 - [x] **Fase 3** — kalender (måned/uge, begivenheder + hvem dækker)
 - [x] **Fase 4** — roller & rolle-tilpassede visninger (perspektiv-vælger)
 - [x] **Fase 5** — kommunikation (spor → emne-tråde → beskeder)
-- [ ] Senere — login + Supabase + realtid, mor som to-vejs "ansigt", push, AI
+- [x] **Fase 6** — orkestrator (ugeoverblik + hængende beslutninger, regelbaseret)
+- [ ] Senere — login + Supabase + realtid, mor som to-vejs "ansigt", push, smartere AI-opsummering
 
 ## Struktur
 
