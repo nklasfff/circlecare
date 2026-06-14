@@ -27,37 +27,41 @@ export function WeeklyDigest({
   const calm = s.uncovered === 0 && pending.length === 0
 
   return (
-    <div className="glass enter mb-7 p-5">
-      <p className="eyebrow mb-3">Ugen kort</p>
+    <div className="glass enter mb-8 p-6">
+      <p className="eyebrow mb-5">Ugen kort</p>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 text-center">
         <Stat n={s.planned} label="Planlagt" />
         <Stat n={s.covered} label="Dækket" />
         <Stat n={s.uncovered} label="Mangler" alert={s.uncovered > 0} />
       </div>
 
       {calm && (
-        <p className="mt-4 text-sm text-muted">
+        <p className="mt-6 text-center text-sm italic text-muted">
           Ingen løse ender lige nu — alt er dækket, og ingen beslutninger venter.
         </p>
       )}
 
       {pending.length > 0 && (
-        <div className="mt-5 border-t border-white/50 pt-4">
-          <p className="eyebrow mb-3">Beslutninger der venter</p>
-          <div className="space-y-3">
+        <div className="mt-7 border-t border-white/50 pt-6">
+          <p className="eyebrow mb-4">Beslutninger der venter</p>
+          <div className="space-y-4">
             {pending.map(({ thread, daysStale }) => (
-              <div key={thread.id} className="flex items-center gap-3">
-                <Icon as={Clock} size={20} className="shrink-0 text-steel" />
+              <div
+                key={thread.id}
+                className="flex items-center gap-3 rounded-r-xl py-1.5 pl-4"
+                style={{ borderLeft: '2px solid #3C4E86' }}
+              >
+                <Icon as={Clock} size={20} className="shrink-0 text-[#3C4E86]" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-ink">{thread.title}</p>
-                  <p className="text-sm text-muted">
+                  <p className="text-[12px] text-muted">
                     {daysStale} dage uden svar
                   </p>
                 </div>
                 <Link
                   to={`/beskeder/${thread.track_id}/${thread.id}`}
-                  className="shrink-0 text-sm font-semibold text-slate"
+                  className="hoverable shrink-0 text-sm font-semibold text-slate"
                 >
                   Åbn
                 </Link>
@@ -93,12 +97,12 @@ function Stat({
   return (
     <div>
       <p
-        className="font-display text-3xl leading-none"
+        className="font-display text-[36px] font-medium leading-none"
         style={{ color: alert ? '#3C4E86' : '#2C3C61' }}
       >
         {n}
       </p>
-      <p className="eyebrow mt-1.5">{label}</p>
+      <p className="eyebrow mt-2">{label}</p>
     </div>
   )
 }

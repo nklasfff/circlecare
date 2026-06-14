@@ -12,8 +12,8 @@ export function Card({ children, accent, className = '', onClick }: CardProps) {
     <div
       onClick={onClick}
       style={accent ? { borderLeft: `3px solid ${accent}` } : undefined}
-      className={`glass p-4 ${
-        onClick ? 'cursor-pointer transition active:scale-[0.99]' : ''
+      className={`glass p-5 ${
+        onClick ? 'hoverable cursor-pointer active:scale-[0.99]' : ''
       } ${className}`}
     >
       {children}

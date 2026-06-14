@@ -43,9 +43,9 @@ export function ThreadsScreen() {
       <Link to="/beskeder" className="mb-4 flex items-center gap-1 text-slate">
         <ChevronLeft size={22} strokeWidth={1.5} /> Beskeder
       </Link>
-      <header className="mb-6">
+      <header className="mb-7">
         <p className="eyebrow">Emner</p>
-        <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
+        <h1 className="font-display mt-3 text-[2.4rem] leading-[1.1] text-ink">
           {track?.name ?? 'Samtale'}
         </h1>
       </header>
@@ -82,7 +82,7 @@ export function ThreadsScreen() {
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="btn-soft mb-5 flex w-full items-center justify-center gap-2 px-4 py-3.5 text-base font-semibold transition active:scale-[0.99]"
+          className="hoverable mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-[#3C4E86]/70 p-4 text-base font-semibold text-[#3C4E86] active:scale-[0.99]"
         >
           <Plus size={20} strokeWidth={1.5} /> Nyt emne
         </button>
@@ -92,11 +92,11 @@ export function ThreadsScreen() {
       {isError && <p className="text-[#B23A3A]">Kunne ikke hente emner.</p>}
 
       {!isLoading && !isError && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {(threads ?? []).length === 0 ? (
-            <Card>
-              <p className="text-muted">Ingen emner endnu. Start et nyt.</p>
-            </Card>
+            <p className="py-6 text-center italic text-muted">
+              Ingen emner endnu. Start et nyt.
+            </p>
           ) : (
             (threads ?? []).map((thread) => (
               <Link key={thread.id} to={`/beskeder/${trackId}/${thread.id}`}>
@@ -104,10 +104,10 @@ export function ThreadsScreen() {
                   <div className="flex items-center gap-3.5">
                     <Icon as={MessageSquare} className="text-steel" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-ink">
+                      <p className="truncate text-[17px] font-medium text-ink">
                         {thread.title}
                       </p>
-                      <p className="text-sm text-muted">
+                      <p className="text-[12px] text-muted">
                         Aktiv for{' '}
                         {formatDistanceToNow(new Date(thread.last_activity_at), {
                           locale: da,

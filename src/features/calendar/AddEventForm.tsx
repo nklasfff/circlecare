@@ -53,7 +53,7 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="btn-soft mb-5 flex w-full items-center justify-center gap-2 px-4 py-3.5 text-base font-semibold transition active:scale-[0.99]"
+        className="hoverable mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-[#3C4E86]/70 p-4 text-base font-semibold text-[#3C4E86] active:scale-[0.99]"
       >
         <Plus size={20} strokeWidth={1.5} /> Tilføj aftale
       </button>

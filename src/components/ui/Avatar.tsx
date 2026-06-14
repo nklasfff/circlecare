@@ -7,7 +7,7 @@ interface AvatarProps {
 const TONES = ['#9FB4D8', '#B2C2DE', '#7F95C0', '#A8BAD9']
 const INITIAL_INK = '#16203A'
 
-function pickTone(name: string | null): string {
+export function avatarTone(name: string | null): string {
   if (!name) return TONES[0]
   const sum = [...name].reduce((acc, c) => acc + c.charCodeAt(0), 0)
   return TONES[sum % TONES.length]
@@ -22,7 +22,7 @@ export function Avatar({ name, size = 36 }: AvatarProps) {
         width: size,
         height: size,
         fontSize: size * 0.4,
-        background: pickTone(name),
+        background: avatarTone(name),
         color: INITIAL_INK,
       }}
       aria-hidden

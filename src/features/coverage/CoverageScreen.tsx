@@ -46,12 +46,12 @@ export function CoverageScreen() {
 
   return (
     <div className="mx-auto w-full max-w-[700px] px-5 pb-28 pt-7">
-      <header className="enter mb-7">
+      <header className="enter mb-8">
         <p className="eyebrow">
           {format(new Date(), 'EEEE d. MMMM', { locale: da })} · uge{' '}
           {format(new Date(), 'w', { locale: da })}
         </p>
-        <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
+        <h1 className="font-display mt-3 text-[2.5rem] leading-[1.1] text-ink">
           {uncovered === 0 ? (
             <>
               Alt er <span className="text-accent">dækket</span> i dag.
@@ -63,7 +63,7 @@ export function CoverageScreen() {
           )}
         </h1>
         {uncovered > 0 && (
-          <p className="mt-2 text-muted">
+          <p className="mt-3 text-muted">
             {uncovered} {uncovered === 1 ? 'ting venter' : 'ting venter'} på, at
             nogen tager den.
           </p>
@@ -89,9 +89,9 @@ export function CoverageScreen() {
                 />
               ))
             ) : (
-              <Card>
-                <p className="text-muted">Ingen opgaver eller aftaler i dag.</p>
-              </Card>
+              <p className="py-6 text-center italic text-muted">
+                Ingen opgaver eller aftaler i dag.
+              </p>
             )}
           </Section>
 
@@ -102,7 +102,7 @@ export function CoverageScreen() {
           >
             {restGroups.length > 0 ? (
               restGroups.map((group) => (
-                <div key={group.day.toISOString()} className="space-y-3">
+                <div key={group.day.toISOString()} className="space-y-4">
                   <p className="ml-1 mt-1 text-sm font-medium capitalize text-muted">
                     {format(group.day, 'EEEE d. MMM', { locale: da })}
                   </p>
@@ -117,9 +117,9 @@ export function CoverageScreen() {
                 </div>
               ))
             ) : (
-              <Card>
-                <p className="text-muted">Ikke mere planlagt i denne uge.</p>
-              </Card>
+              <p className="py-6 text-center italic text-muted">
+                Ikke mere planlagt i denne uge.
+              </p>
             )}
           </Section>
         </>
@@ -136,9 +136,9 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="mb-7">
-      <h2 className="eyebrow mb-3 ml-1">{title}</h2>
-      <div className="space-y-3">{children}</div>
+    <section className="mb-8">
+      <h2 className="eyebrow mb-4 ml-1">{title}</h2>
+      <div className="space-y-4">{children}</div>
     </section>
   )
 }
@@ -193,10 +193,11 @@ function ActionRow({ item, time }: { item: CoverageItem; time: string | null }) 
 
   return (
     <div
-      className="rounded-[18px] p-4"
+      className="rounded-[18px] p-5"
       style={{
         background: 'rgba(60,78,134,.15)',
         border: '1px solid rgba(60,78,134,.40)',
+        borderLeft: '2px solid #3C4E86',
       }}
     >
       <div className="flex items-center gap-3.5">

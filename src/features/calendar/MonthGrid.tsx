@@ -10,7 +10,6 @@ import {
   format,
 } from 'date-fns'
 import type { CalendarEvent } from '@/types/database'
-import { eventColor } from './categories'
 
 const WEEKDAYS = ['M', 'T', 'O', 'T', 'F', 'L', 'S']
 
@@ -45,32 +44,33 @@ export function MonthGrid({ month, events, selectedDay, onSelectDay }: Props) {
           const inMonth = isSameMonth(day, month)
           const today = isToday(day)
           const selected = isSameDay(day, selectedDay)
-          const dayEvents = eventsOn(day)
+          const hasEvents = eventsOn(day).length > 0
+          const plain = !today && !selected
           return (
             <button
               key={day.toISOString()}
               onClick={() => onSelectDay(day)}
-              className={`relative flex aspect-square items-center justify-center rounded-full text-sm transition ${
+              style={
+                plain && hasEvents
+                  ? { background: 'rgba(60,78,134,.12)' }
+                  : undefined
+              }
+              className={`relative flex aspect-square items-center justify-center rounded-full text-[15px] transition ${
                 today
-                  ? 'bg-primary font-bold text-white'
+                  ? 'bg-[#2C3C61] font-semibold text-white'
                   : selected
-                    ? 'bg-primary/15 font-semibold text-primary'
+                    ? 'bg-[#2C3C61]/15 font-semibold text-slate'
                     : inMonth
                       ? 'text-ink'
                       : 'text-muted/40'
               }`}
             >
               {format(day, 'd')}
-              {dayEvents.length > 0 && !today && (
-                <span className="absolute bottom-1 left-1/2 flex -translate-x-1/2 gap-0.5">
-                  {dayEvents.slice(0, 3).map((e) => (
-                    <span
-                      key={e.id}
-                      className="h-1 w-1 rounded-full"
-                      style={{ background: eventColor(e.category) }}
-                    />
-                  ))}
-                </span>
+              {hasEvents && !today && (
+                <span
+                  className="absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full"
+                  style={{ background: '#3C4E86' }}
+                />
               )}
             </button>
           )

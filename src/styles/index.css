@@ -59,14 +59,15 @@ body::before {
   background: linear-gradient(180deg, #c6d6ed 0%, #90a6cd 50%, #57699a 100%);
 }
 
-/* Frostet glas-flade til kort og rækker. */
+/* Frostet glas-flade til kort og rækker. Lavere opacity + mere blur, så den
+   blå gradient-dybde skinner igennem. */
 .glass {
-  background: rgba(255, 255, 255, 0.64);
-  border: 1px solid rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-row);
-  box-shadow: 0 4px 16px -10px rgba(28, 38, 64, 0.45);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 22px -12px rgba(28, 38, 64, 0.5);
+  -webkit-backdrop-filter: blur(17px);
+  backdrop-filter: blur(17px);
 }
 
 /* Solid fallback hvor backdrop-filter ikke understøttes. */
@@ -74,6 +75,34 @@ body::before {
   .glass {
     background: rgba(255, 255, 255, 0.85);
   }
+}
+
+/* Blid hover-løft på klikbare elementer (kun på enheder med pegeredskab). */
+.hoverable {
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease,
+    box-shadow 0.18s ease;
+}
+@media (hover: hover) {
+  .hoverable:hover {
+    transform: translateY(-1px);
+    opacity: 0.96;
+  }
+}
+
+@keyframes check-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.check-pop {
+  animation: check-pop 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* Knapper. Den eneste UDFYLDTE knap er .btn-action ("kræver handling"). */
@@ -96,7 +125,7 @@ body::before {
 
 /* Eyebrow-labels: Inter Tight 600, versaler, vid sporing. */
 .eyebrow {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
