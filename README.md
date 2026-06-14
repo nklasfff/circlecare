@@ -56,7 +56,7 @@ i [`supabase/`](supabase/) som forberedelse.
 - [x] **Fase 2** — opgaver (tilføj/tildel/markér klaret) på mock-data
 - [x] **Fase 3** — kalender (måned/uge, begivenheder + hvem dækker)
 - [x] **Fase 4** — roller & rolle-tilpassede visninger (perspektiv-vælger)
-- [ ] Fase 5 — kommunikation (spor → emne-tråde → beskeder)
+- [x] **Fase 5** — kommunikation (spor → emne-tråde → beskeder)
 - [ ] Senere — login + Supabase + realtid, mor som to-vejs "ansigt", push, AI
 
 ## Struktur

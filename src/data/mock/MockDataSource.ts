@@ -1,14 +1,30 @@
-import type { CalendarEvent, Task } from '@/types/database'
+import type {
+  CalendarEvent,
+  Message,
+  Task,
+  Thread,
+  Track,
+} from '@/types/database'
 import type { DataSource } from '../source'
 import type {
   CoverageItem,
   EventPatch,
   MemberView,
   NewEventInput,
+  NewMessageInput,
   NewTaskInput,
+  NewThreadInput,
   TaskPatch,
 } from '../types'
-import { FAMILY_ID, events as seedEvents, members as seedMembers, tasks as seedTasks } from './seed'
+import {
+  FAMILY_ID,
+  events as seedEvents,
+  members as seedMembers,
+  messages as seedMessages,
+  tasks as seedTasks,
+  threads as seedThreads,
+  tracks as seedTracks,
+} from './seed'
 
 /** Simulér en lille netværksforsinkelse, så loading-tilstande er ægte. */
 const delay = (ms = 120) => new Promise((r) => setTimeout(r, ms))
@@ -50,6 +66,9 @@ export class MockDataSource implements DataSource {
   private members: MemberView[] = [...seedMembers]
   private tasks: Task[] = [...seedTasks]
   private events: CalendarEvent[] = [...seedEvents]
+  private tracks: Track[] = [...seedTracks]
+  private threads: Thread[] = [...seedThreads]
+  private messages: Message[] = [...seedMessages]
   private listeners = new Set<() => void>()
 
   async getCurrentFamilyId(): Promise<string> {
@@ -177,6 +196,62 @@ export class MockDataSource implements DataSource {
     await delay()
     this.events = this.events.filter((e) => e.id !== id)
     this.notify()
+  }
+
+  async getTracks(familyId: string): Promise<Track[]> {
+    await delay()
+    if (familyId !== FAMILY_ID) return []
+    return this.tracks
+  }
+
+  async getThreads(trackId: string): Promise<Thread[]> {
+    await delay()
+    return this.threads
+      .filter((t) => t.track_id === trackId)
+      .sort((a, b) => (a.last_activity_at < b.last_activity_at ? 1 : -1))
+  }
+
+  async getMessages(threadId: string): Promise<Message[]> {
+    await delay()
+    return this.messages
+      .filter((m) => m.thread_id === threadId)
+      .sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+  }
+
+  async createThread(input: NewThreadInput): Promise<Thread> {
+    await delay()
+    const nowIso = new Date().toISOString()
+    const thread: Thread = {
+      id: `th-${crypto.randomUUID()}`,
+      track_id: input.track_id,
+      title: input.title,
+      status: 'open',
+      created_by: input.created_by,
+      created_at: nowIso,
+      last_activity_at: nowIso,
+    }
+    this.threads = [...this.threads, thread]
+    this.notify()
+    return thread
+  }
+
+  async sendMessage(input: NewMessageInput): Promise<Message> {
+    await delay()
+    const nowIso = new Date().toISOString()
+    const message: Message = {
+      id: `msg-${crypto.randomUUID()}`,
+      thread_id: input.thread_id,
+      author: input.author,
+      body: input.body,
+      created_at: nowIso,
+    }
+    this.messages = [...this.messages, message]
+    // Bump trådens aktivitet, så den rykker øverst i listen.
+    this.threads = this.threads.map((t) =>
+      t.id === input.thread_id ? { ...t, last_activity_at: nowIso } : t,
+    )
+    this.notify()
+    return message
   }
 
   subscribe(_familyId: string, onChange: () => void): () => void {

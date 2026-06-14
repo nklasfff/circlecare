@@ -1,5 +1,11 @@
-import { startOfWeek, addDays, set } from 'date-fns'
-import type { CalendarEvent, Task } from '@/types/database'
+import { startOfWeek, addDays, set, subMinutes } from 'date-fns'
+import type {
+  CalendarEvent,
+  Message,
+  Task,
+  Thread,
+  Track,
+} from '@/types/database'
 import type { MemberView } from '../types'
 
 /*
@@ -63,4 +69,28 @@ export const events: CalendarEvent[] = [
   { id: 'e-maria', family_id: FAMILY_ID, title: 'Maria kommer forbi', location: 'Hjemme', starts_at: today(14, 30), ends_at: today(16, 0), covered_by: MEMBER_IDS.maria, category: 'visit', notes: null, created_at: ts },
   { id: 'e-peter', family_id: FAMILY_ID, title: 'Peter kommer forbi – gåtur', location: 'Parken', starts_at: weekday(1, 15, 0), ends_at: weekday(1, 16, 30), covered_by: MEMBER_IDS.peter, category: 'visit', notes: null, created_at: ts },
   { id: 'e-laege', family_id: FAMILY_ID, title: 'Lægebesøg – Dr. Jensen', location: 'Lægehuset', starts_at: weekday(4, 10, 0), ends_at: weekday(4, 11, 0), covered_by: null, category: 'medical', notes: null, created_at: ts },
+]
+
+/** Tre kommunikations-spor: søskende, søskende + far, søskende + børnebørn. */
+export const tracks: Track[] = [
+  { id: 'tr-sib', family_id: FAMILY_ID, kind: 'siblings', name: 'Søskende' },
+  { id: 'tr-far', family_id: FAMILY_ID, kind: 'with_parent', name: 'Med far' },
+  { id: 'tr-bb', family_id: FAMILY_ID, kind: 'with_grandchildren', name: 'Med børnebørn' },
+]
+
+const min = (m: number) => subMinutes(now, m).toISOString()
+
+export const threads: Thread[] = [
+  { id: 'th-watch', track_id: 'tr-sib', title: 'Smartwatch til far?', status: 'open', created_by: MEMBER_IDS.peter, created_at: min(180), last_activity_at: min(40) },
+  { id: 'th-jul', track_id: 'tr-sib', title: 'Hvem holder jul i år?', status: 'open', created_by: MEMBER_IDS.maria, created_at: min(120), last_activity_at: min(95) },
+  { id: 'th-gaatur', track_id: 'tr-far', title: 'Gåture i denne uge', status: 'open', created_by: MEMBER_IDS.peter, created_at: min(75), last_activity_at: min(60) },
+]
+
+export const messages: Message[] = [
+  { id: 'msg-1', thread_id: 'th-watch', author: MEMBER_IDS.peter, body: 'Skal vi gå sammen om et Apple Watch SE til far?', created_at: min(180) },
+  { id: 'msg-2', thread_id: 'th-watch', author: MEMBER_IDS.anne, body: 'God idé – jeg kan undersøge prisen i morgen.', created_at: min(90) },
+  { id: 'msg-3', thread_id: 'th-watch', author: MEMBER_IDS.maria, body: 'Jeg er med på den 👍', created_at: min(40) },
+  { id: 'msg-4', thread_id: 'th-jul', author: MEMBER_IDS.maria, body: 'Skal vi skiftes til at holde jul i år?', created_at: min(120) },
+  { id: 'msg-5', thread_id: 'th-jul', author: MEMBER_IDS.lars, body: 'Vi kan godt lægge hus til 🎄', created_at: min(95) },
+  { id: 'msg-6', thread_id: 'th-gaatur', author: MEMBER_IDS.peter, body: 'Far, har du lyst til en gåtur onsdag eftermiddag?', created_at: min(60) },
 ]

@@ -47,6 +47,20 @@ export interface EventPatch {
   covered_by?: string | null
 }
 
+/** Felter til at oprette en ny emne-tråd. */
+export interface NewThreadInput {
+  track_id: string
+  title: string
+  created_by: string | null
+}
+
+/** Felter til at sende en ny besked. */
+export interface NewMessageInput {
+  thread_id: string
+  author: string | null
+  body: string
+}
+
 /** Et familiemedlem klar til visning (navn + roller samlet). */
 export interface MemberView {
   membershipId: string

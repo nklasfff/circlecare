@@ -10,7 +10,9 @@ import type {
   EventPatch,
   MemberView,
   NewEventInput,
+  NewMessageInput,
   NewTaskInput,
+  NewThreadInput,
   TaskPatch,
 } from './types'
 
@@ -155,6 +157,80 @@ export function useEventMutations() {
   })
 
   return { create, update, remove }
+}
+
+export function useTracks(familyId: string | null | undefined) {
+  const ds = useDataSource()
+  return useQuery({
+    queryKey: ['tracks', familyId],
+    enabled: Boolean(familyId),
+    queryFn: () => ds.getTracks(familyId as string),
+  })
+}
+
+export function useThreads(
+  familyId: string | null | undefined,
+  trackId: string | null | undefined,
+) {
+  const ds = useDataSource()
+  const query = useQuery({
+    queryKey: ['threads', trackId],
+    enabled: Boolean(trackId),
+    queryFn: () => ds.getThreads(trackId as string),
+  })
+
+  const { refetch } = query
+  useEffect(() => {
+    if (!familyId) return
+    return ds.subscribe(familyId, () => {
+      void refetch()
+    })
+  }, [ds, familyId, refetch])
+
+  return query
+}
+
+export function useMessages(
+  familyId: string | null | undefined,
+  threadId: string | null | undefined,
+) {
+  const ds = useDataSource()
+  const query = useQuery({
+    queryKey: ['messages', threadId],
+    enabled: Boolean(threadId),
+    queryFn: () => ds.getMessages(threadId as string),
+  })
+
+  const { refetch } = query
+  useEffect(() => {
+    if (!familyId) return
+    return ds.subscribe(familyId, () => {
+      void refetch()
+    })
+  }, [ds, familyId, refetch])
+
+  return query
+}
+
+/** Mutationer for kommunikation: opret tråd og send besked. */
+export function useCommunicationMutations() {
+  const ds = useDataSource()
+  const queryClient = useQueryClient()
+
+  const createThread = useMutation({
+    mutationFn: (input: NewThreadInput) => ds.createThread(input),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['threads'] }),
+  })
+  const sendMessage = useMutation({
+    mutationFn: (input: NewMessageInput) => ds.sendMessage(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['messages'] })
+      void queryClient.invalidateQueries({ queryKey: ['threads'] })
+    },
+  })
+
+  return { createThread, sendMessage }
 }
 
 /** Slå et medlems-navn op ud fra membership-id. */

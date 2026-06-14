@@ -1,10 +1,18 @@
-import type { CalendarEvent, Task } from '@/types/database'
+import type {
+  CalendarEvent,
+  Message,
+  Task,
+  Thread,
+  Track,
+} from '@/types/database'
 import type {
   CoverageItem,
   EventPatch,
   MemberView,
   NewEventInput,
+  NewMessageInput,
   NewTaskInput,
+  NewThreadInput,
   TaskPatch,
 } from './types'
 
@@ -53,6 +61,21 @@ export interface DataSource {
 
   /** Slet en begivenhed. */
   deleteEvent(id: string): Promise<void>
+
+  /** Kommunikations-spor i en familie. */
+  getTracks(familyId: string): Promise<Track[]>
+
+  /** Emne-tråde i et spor, nyeste aktivitet først. */
+  getThreads(trackId: string): Promise<Thread[]>
+
+  /** Beskeder i en tråd, ældste først. */
+  getMessages(threadId: string): Promise<Message[]>
+
+  /** Opret en ny emne-tråd. */
+  createThread(input: NewThreadInput): Promise<Thread>
+
+  /** Send en besked i en tråd. */
+  sendMessage(input: NewMessageInput): Promise<Message>
 
   /**
    * Abonnér på ændringer i familiens data. Mock-kilden kalder onChange ved
