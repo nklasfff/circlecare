@@ -35,7 +35,7 @@ export function MemberSwitcher() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="max-h-[80%] w-full overflow-y-auto rounded-t-[34px] bg-[#E3EAF5] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+            className="mx-auto max-h-[80%] w-full max-w-[700px] overflow-y-auto rounded-t-[34px] bg-[#E3EAF5] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-steel/30" />

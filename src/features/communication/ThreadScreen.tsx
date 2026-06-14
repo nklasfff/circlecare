@@ -42,7 +42,7 @@ export function ThreadScreen() {
   }
 
   return (
-    <div className="mx-auto flex h-full max-w-md flex-col px-5 pt-7">
+    <div className="mx-auto flex h-full w-full max-w-[700px] flex-col px-5 pt-7">
       <Link
         to={`/beskeder/${trackId}`}
         className="mb-3 flex items-center gap-1 text-slate"

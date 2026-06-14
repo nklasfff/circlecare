@@ -11,7 +11,7 @@ const TABS = [
 
 export function AppLayout() {
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="app-frame flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40">
         <MemberSwitcher />
       </header>

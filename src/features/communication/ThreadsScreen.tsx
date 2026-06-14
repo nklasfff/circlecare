@@ -39,7 +39,7 @@ export function ThreadsScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+    <div className="mx-auto w-full max-w-[700px] px-5 pb-28 pt-7">
       <Link to="/beskeder" className="mb-4 flex items-center gap-1 text-slate">
         <ChevronLeft size={22} strokeWidth={1.5} /> Beskeder
       </Link>

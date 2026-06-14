@@ -45,7 +45,7 @@ export function CoverageScreen() {
   const restGroups = groups.filter((g) => !isToday(g.day))
 
   return (
-    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+    <div className="mx-auto w-full max-w-[700px] px-5 pb-28 pt-7">
       <header className="enter mb-7">
         <p className="eyebrow">
           {format(new Date(), 'EEEE d. MMMM', { locale: da })} · uge{' '}
