@@ -1,4 +1,5 @@
-import type { CoverageItem, MemberView } from './types'
+import type { Task } from '@/types/database'
+import type { CoverageItem, MemberView, NewTaskInput, TaskPatch } from './types'
 
 /**
  * Backend-uafhængig grænseflade som alle skærme går igennem.
@@ -21,6 +22,18 @@ export interface DataSource {
     fromIso: string,
     toIso: string,
   ): Promise<CoverageItem[]>
+
+  /** Alle opgaver i en familie, sorteret efter forfaldstidspunkt. */
+  getTasks(familyId: string): Promise<Task[]>
+
+  /** Opret en ny opgave. */
+  createTask(input: NewTaskInput): Promise<Task>
+
+  /** Opdatér en opgave (fx tildel ansvarlig eller skift status). */
+  updateTask(id: string, patch: TaskPatch): Promise<Task>
+
+  /** Slet en opgave. */
+  deleteTask(id: string): Promise<void>
 
   /**
    * Abonnér på ændringer i familiens data. Mock-kilden kalder onChange ved

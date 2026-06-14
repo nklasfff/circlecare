@@ -53,7 +53,7 @@ i [`supabase/`](supabase/) som forberedelse.
 ## Status (byggefaser)
 
 - [x] **Fase 1** — dækningsbilledet (uge-overblik, manglende ansvarlig markeres)
-- [ ] Fase 2 — opgaver (tilføj/tildel/markér klaret) på mock-data
+- [x] **Fase 2** — opgaver (tilføj/tildel/markér klaret) på mock-data
 - [ ] Fase 3 — kalender
 - [ ] Fase 4 — roller & rolle-tilpassede visninger
 - [ ] Fase 5 — kommunikation (spor → emne-tråde → beskeder)

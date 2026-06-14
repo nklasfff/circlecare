@@ -1,8 +1,12 @@
 import { useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { startOfWeek, endOfWeek } from 'date-fns'
 import { useDataSource } from './DataProvider'
-import type { MemberView } from './types'
+import type { MemberView, NewTaskInput, TaskPatch } from './types'
 
 export function useFamilyId() {
   const ds = useDataSource()
@@ -47,6 +51,55 @@ export function useWeekCoverage(familyId: string | null | undefined) {
   }, [ds, familyId, refetch])
 
   return { ...query, weekStart: from, weekEnd: to }
+}
+
+export function useTasks(familyId: string | null | undefined) {
+  const ds = useDataSource()
+  const query = useQuery({
+    queryKey: ['tasks', familyId],
+    enabled: Boolean(familyId),
+    queryFn: () => ds.getTasks(familyId as string),
+  })
+
+  const { refetch } = query
+  useEffect(() => {
+    if (!familyId) return
+    return ds.subscribe(familyId, () => {
+      void refetch()
+    })
+  }, [ds, familyId, refetch])
+
+  return query
+}
+
+/**
+ * Mutationer på opgaver. Efter hver ændring genindlæses både opgave- og
+ * dækningslisten, så UI og dækningsbilledet altid er i sync.
+ */
+export function useTaskMutations() {
+  const ds = useDataSource()
+  const queryClient = useQueryClient()
+
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    void queryClient.invalidateQueries({ queryKey: ['coverage'] })
+  }
+
+  const create = useMutation({
+    mutationFn: (input: NewTaskInput) => ds.createTask(input),
+    onSuccess: invalidate,
+  })
+  const update = useMutation({
+    mutationFn: (vars: { id: string; patch: TaskPatch }) =>
+      ds.updateTask(vars.id, vars.patch),
+    onSuccess: invalidate,
+  })
+  const remove = useMutation({
+    mutationFn: (id: string) => ds.deleteTask(id),
+    onSuccess: invalidate,
+  })
+
+  return { create, update, remove }
 }
 
 /** Slå et medlems-navn op ud fra membership-id. */

@@ -1,6 +1,11 @@
 import type { CalendarEvent, Task } from '@/types/database'
 import type { DataSource } from '../source'
-import type { CoverageItem, MemberView } from '../types'
+import type {
+  CoverageItem,
+  MemberView,
+  NewTaskInput,
+  TaskPatch,
+} from '../types'
 import { FAMILY_ID, events as seedEvents, members as seedMembers, tasks as seedTasks } from './seed'
 
 /** Simulér en lille netværksforsinkelse, så loading-tilstande er ægte. */
@@ -79,8 +84,69 @@ export class MockDataSource implements DataSource {
     return items
   }
 
+  async getTasks(familyId: string): Promise<Task[]> {
+    await delay()
+    if (familyId !== FAMILY_ID) return []
+    return [...this.tasks].sort(byDueAt)
+  }
+
+  async createTask(input: NewTaskInput): Promise<Task> {
+    await delay()
+    const now = new Date().toISOString()
+    const task: Task = {
+      id: `t-${crypto.randomUUID()}`,
+      family_id: input.family_id,
+      title: input.title,
+      notes: null,
+      assigned_to: input.assigned_to,
+      status: 'todo',
+      due_at: input.due_at,
+      category: input.category,
+      recurrence: null,
+      created_by: null,
+      created_at: now,
+      updated_at: now,
+    }
+    this.tasks = [...this.tasks, task]
+    this.notify()
+    return task
+  }
+
+  async updateTask(id: string, patch: TaskPatch): Promise<Task> {
+    await delay()
+    let updated: Task | undefined
+    this.tasks = this.tasks.map((t) => {
+      if (t.id !== id) return t
+      updated = { ...t, ...patch, updated_at: new Date().toISOString() }
+      return updated
+    })
+    if (!updated) throw new Error(`Opgave ${id} findes ikke`)
+    this.notify()
+    return updated
+  }
+
+  async deleteTask(id: string): Promise<void> {
+    await delay()
+    this.tasks = this.tasks.filter((t) => t.id !== id)
+    this.notify()
+  }
+
   subscribe(_familyId: string, onChange: () => void): () => void {
     this.listeners.add(onChange)
     return () => this.listeners.delete(onChange)
   }
+
+  /** Udløs alle abonnenter efter en mutation (spejler realtime senere). */
+  private notify() {
+    for (const l of this.listeners) l()
+  }
+}
+
+function byDueAt(a: Task, b: Task): number {
+  const av = a.due_at ?? ''
+  const bv = b.due_at ?? ''
+  if (av === bv) return 0
+  if (!av) return 1
+  if (!bv) return -1
+  return av < bv ? -1 : 1
 }
