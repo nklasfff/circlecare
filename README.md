@@ -3,61 +3,72 @@
 Familie-koordineringsapp som PWA. Kernen er **dækningsbilledet**: "hvem gør
 hvad, i dag og i denne uge" — så man med ét blik kan se, om alt er dækket.
 
-> Den oprindelige klikbare prototype (v2.1.0, én statisk HTML-fil) ligger nu i
-> [`prototype/index.html`](prototype/index.html) og bruges udelukkende som
-> visuel reference (farver, tone, komponenter).
+> **Nuværende fase:** klikbar demo med **mock-data** (ingen login, ingen
+> backend). Alt data er hårdkodet lokalt. Login, Supabase og realtid kobles på
+> senere — uden at skærmene skal bygges om (se "Data-laget").
+>
+> Den oprindelige prototype (v2.1.0, én statisk HTML-fil) ligger i
+> [`prototype/index.html`](prototype/index.html) som ren visuel reference.
 
 ## Stack
 
 - **React + Vite + TypeScript**, installérbar som PWA (`vite-plugin-pwa`)
-- **Supabase** — Auth (magic link), Postgres, Realtime, Row Level Security
-- **TanStack Query** til server-state, opdateret live via Supabase Realtime
+- **TanStack Query** til data-hentning og caching
 - **Tailwind CSS v4** med design-tokens porteret fra prototypen
+- **Mock-data-kilde** i dag → **Supabase** (auth + Postgres + realtime) senere
 
 ## Kom i gang
 
 ```bash
 npm install
-cp .env.example .env      # udfyld VITE_SUPABASE_URL og VITE_SUPABASE_ANON_KEY
-npm run dev
+npm run dev      # åbn den viste URL
 ```
 
-### Database
+Ingen miljøvariabler kræves — appen kører på hårdkodet demo-data.
 
-Schemaet ligger i `supabase/migrations/` og demo-data i `supabase/seed.sql`.
+## Deploy (Vercel)
 
-Med [Supabase CLI](https://supabase.com/docs/guides/cli):
+Repoet er klar til Vercel. Engangs-opsætning:
 
-```bash
-supabase start          # lokal stak
-supabase db reset       # kører migrations + seed
-```
+1. På [vercel.com](https://vercel.com) → **Add New → Project** → importér dette
+   GitHub-repo.
+2. Vercel auto-detekterer Vite (build: `npm run build`, output: `dist`).
+   `vercel.json` sørger for SPA-routing, så fx `/opgaver` virker ved reload.
+3. Deploy. Herefter får hver push til branchen en preview-URL, og `main` en
+   produktions-URL.
 
-Efter dit første login (magic link) kobler du dig til en plads i demo-familien:
+## Data-laget (sådan kobles Supabase på senere)
 
-```sql
-select claim_demo_seat('Peter');   -- eller Maria / Anne / Lars
-```
+Alle skærme går gennem grænsefladen [`DataSource`](src/data/source.ts) via
+hooks i [`src/data/hooks.ts`](src/data/hooks.ts) — de kender ikke backenden.
+
+- I dag: [`MockDataSource`](src/data/mock/MockDataSource.ts) (hårdkodet, i
+  hukommelsen, med `subscribe` for fremtidig live-opdatering).
+- Senere: en `SupabaseDataSource` der implementerer det **samme** interface.
+  Skiftet sker ét sted, i [`DataProvider`](src/data/DataProvider.tsx).
+
+Det fremtidige database-schema (RLS, dæknings-view, demo-seed) ligger allerede
+i [`supabase/`](supabase/) som forberedelse.
 
 ## Status (byggefaser)
 
-- [x] **Fase 0** — fundament: scaffold, schema + RLS, auth
-- [x] **Fase 1** — dækningsbilledet (uge-overblik, manglende ansvarlig markeres, realtime)
-- [ ] Fase 2 — opgaver (CRUD, tildeling, status, gentagelse)
-- [ ] Fase 3 — kalender (begivenheder + hvem dækker)
+- [x] **Fase 1** — dækningsbilledet (uge-overblik, manglende ansvarlig markeres)
+- [ ] Fase 2 — opgaver (tilføj/tildel/markér klaret) på mock-data
+- [ ] Fase 3 — kalender
 - [ ] Fase 4 — roller & rolle-tilpassede visninger
 - [ ] Fase 5 — kommunikation (spor → emne-tråde → beskeder)
-- [ ] Senere — mor som to-vejs "ansigt", orkestrator, push, AI
+- [ ] Senere — login + Supabase + realtid, mor som to-vejs "ansigt", push, AI
 
 ## Struktur
 
 ```
 prototype/          gammel prototype (reference)
 src/
-  app/              router, providers, layout, auth-guard
-  features/         coverage, members, auth (senere: tasks, calendar, ...)
+  app/              router, providers, layout
+  data/             DataSource-grænseflade, mock-kilde, hooks  ← backend-skifte sker her
+  features/         coverage (senere: tasks, calendar, ...)
   components/ui/    genbrugs-komponenter
-  lib/              supabase-klient, query-client
-  types/            domæne-/database-typer
-supabase/           migrations + seed
+  lib/              query-client
+  types/            domæne-typer
+supabase/           fremtidigt schema + seed (ikke brugt endnu)
 ```

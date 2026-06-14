@@ -4,8 +4,12 @@ import { da } from 'date-fns/locale'
 import type { CoverageItem } from '@/types/database'
 import { Card } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
-import { useFamilyId, useMembers, memberName } from '@/features/members/useFamily'
-import { useWeekCoverage } from './useCoverage'
+import {
+  useFamilyId,
+  useMembers,
+  useWeekCoverage,
+  memberName,
+} from '@/data/hooks'
 
 const CATEGORY_ICON: Record<string, string> = {
   medicine: '💊',
