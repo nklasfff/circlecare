@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+
+/*
+  Design-tokens porteret fra prototypen (prototype/index.html).
+  Varm, enkel iOS-agtig palette med store flader og bløde kort.
+*/
+@theme {
+  --color-bg: #cbd5dc;
+  --color-surface: #e7ecf0;
+  --color-surface-2: #ffffff;
+
+  --color-ink: #2e3842;
+  --color-muted: #8e8e93;
+  --color-line: #cbd5dc;
+
+  --color-primary: #007aff;
+  --color-primary-strong: #0051d5;
+  --color-accent: #5856d6;
+
+  --color-danger: #ff3b30;
+  --color-warning: #ff9500;
+  --color-success: #34c759;
+
+  --radius-card: 16px;
+  --radius-pill: 999px;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
