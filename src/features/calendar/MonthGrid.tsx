@@ -32,7 +32,7 @@ export function MonthGrid({ month, events, selectedDay, onSelectDay }: Props) {
   }
 
   return (
-    <div className="mb-4 rounded-2xl bg-surface-2 p-4">
+    <div className="glass mb-4 p-4">
       <div className="mb-2 grid grid-cols-7 gap-1">
         {WEEKDAYS.map((d, i) => (
           <div key={i} className="text-center text-xs font-semibold text-muted">

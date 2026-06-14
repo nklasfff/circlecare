@@ -8,18 +8,19 @@ import {
   addDays,
 } from 'date-fns'
 import { da } from 'date-fns/locale'
+import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 import type { CalendarEvent } from '@/types/database'
 import type { MemberView } from '@/data/types'
 import { Card } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
+import { CategoryIcon, Icon } from '@/components/ui/icons'
 import {
   useFamilyId,
   useMembers,
   useEvents,
   useEventMutations,
-  memberName,
 } from '@/data/hooks'
-import { eventIcon, eventLabel } from './categories'
+import { eventLabel } from './categories'
 import { MonthGrid } from './MonthGrid'
 import { AddEventForm } from './AddEventForm'
 
@@ -37,9 +38,12 @@ export function CalendarScreen() {
   const list = events ?? []
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-24 pt-6">
-      <header className="mb-4">
-        <h1 className="text-3xl font-bold">Kalender</h1>
+    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+      <header className="enter mb-6">
+        <p className="eyebrow">Kalender</p>
+        <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
+          Hvem gør hvad, og <span className="text-accent">hvornår</span>.
+        </h1>
       </header>
 
       <div className="mb-5 flex gap-2">
@@ -60,7 +64,7 @@ export function CalendarScreen() {
       )}
 
       {isLoading && <p className="text-muted">Henter kalender…</p>}
-      {isError && <p className="text-danger">Kunne ikke hente kalender.</p>}
+      {isError && <p className="text-[#B23A3A]">Kunne ikke hente kalender.</p>}
 
       {!isLoading && !isError && view === 'month' && (
         <>
@@ -68,19 +72,19 @@ export function CalendarScreen() {
             <button
               aria-label="Forrige måned"
               onClick={() => setMonth(subMonths(month, 1))}
-              className="px-3 text-2xl text-primary"
+              className="p-1 text-slate"
             >
-              ‹
+              <ChevronLeft size={24} strokeWidth={1.5} />
             </button>
-            <span className="text-lg font-semibold capitalize">
+            <span className="font-display text-xl capitalize text-ink">
               {format(month, 'MMMM yyyy', { locale: da })}
             </span>
             <button
               aria-label="Næste måned"
               onClick={() => setMonth(addMonths(month, 1))}
-              className="px-3 text-2xl text-primary"
+              className="p-1 text-slate"
             >
-              ›
+              <ChevronRight size={24} strokeWidth={1.5} />
             </button>
           </div>
 
@@ -91,20 +95,12 @@ export function CalendarScreen() {
             onSelectDay={setSelectedDay}
           />
 
-          <DayAgenda
-            day={selectedDay}
-            events={list}
-            members={members ?? []}
-          />
+          <DayAgenda day={selectedDay} events={list} members={members ?? []} />
         </>
       )}
 
       {!isLoading && !isError && view === 'week' && (
-        <WeekView
-          anchor={selectedDay}
-          events={list}
-          members={members ?? []}
-        />
+        <WeekView anchor={selectedDay} events={list} members={members ?? []} />
       )}
     </div>
   )
@@ -122,8 +118,8 @@ function Segment({
   return (
     <button
       onClick={onClick}
-      className={`flex-1 rounded-xl px-4 py-2 font-semibold transition ${
-        active ? 'bg-primary text-white' : 'bg-surface text-primary'
+      className={`flex-1 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+        active ? 'bg-slate text-white' : 'btn-soft'
       }`}
     >
       {children}
@@ -146,7 +142,7 @@ function DayAgenda({
 
   return (
     <section>
-      <h2 className="mb-2 ml-1 text-xs font-semibold uppercase tracking-wide text-muted">
+      <h2 className="eyebrow mb-3 ml-1">
         {format(day, 'EEEE d. MMMM', { locale: da })}
       </h2>
       {dayEvents.length === 0 ? (
@@ -184,11 +180,11 @@ function WeekView({
           .sort((a, b) => (a.starts_at < b.starts_at ? -1 : 1))
         return (
           <section key={day.toISOString()}>
-            <h2 className="mb-2 ml-1 text-xs font-semibold uppercase tracking-wide text-muted">
+            <h2 className="eyebrow mb-3 ml-1">
               {format(day, 'EEEE d. MMM', { locale: da })}
             </h2>
             {dayEvents.length === 0 ? (
-              <Card className="opacity-50">
+              <Card className="opacity-55">
                 <p className="text-muted">Ingen aftaler</p>
               </Card>
             ) : (
@@ -214,29 +210,36 @@ function EventRow({
 }) {
   const { update, remove } = useEventMutations()
   const time = format(new Date(event.starts_at), 'HH:mm')
-  const covererName = memberName(members, event.covered_by)
 
   return (
-    <Card accent={event.covered_by ? '#34c759' : '#ff3b30'}>
+    <Card>
       <div className="flex items-center gap-3">
-        <div className="flex w-12 shrink-0 flex-col items-center">
-          <span className="text-2xl">{eventIcon(event.category)}</span>
-          <span className="text-xs font-semibold text-primary">{time}</span>
+        <div className="flex w-12 shrink-0 flex-col items-center gap-0.5">
+          <CategoryIcon category={event.category} className="text-steel" />
+          <span className="text-xs font-semibold text-slate">{time}</span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{event.title}</p>
+          <p className="truncate font-medium text-ink">{event.title}</p>
           <p className="truncate text-sm text-muted">
             {eventLabel(event.category)}
             {event.location ? ` · ${event.location}` : ''}
           </p>
         </div>
-        {event.covered_by && <Avatar name={covererName} size={32} />}
+        {event.covered_by && (
+          <Avatar
+            name={
+              members.find((m) => m.membershipId === event.covered_by)
+                ?.displayName ?? null
+            }
+            size={32}
+          />
+        )}
         <button
           aria-label="Slet aftale"
           onClick={() => remove.mutate(event.id)}
-          className="shrink-0 px-1 text-lg text-muted transition active:scale-90"
+          className="shrink-0 text-steel/70 transition active:scale-90"
         >
-          ✕
+          <Icon as={Trash2} size={18} />
         </button>
       </div>
 
@@ -250,8 +253,8 @@ function EventRow({
               patch: { covered_by: e.target.value || null },
             })
           }
-          className={`flex-1 rounded-xl bg-bg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-primary ${
-            event.covered_by ? 'text-ink' : 'font-semibold text-danger'
+          className={`flex-1 rounded-xl bg-white/55 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-slate ${
+            event.covered_by ? 'text-ink' : 'font-semibold text-[#3C4E86]'
           }`}
         >
           <option value="">Mangler dækning</option>
