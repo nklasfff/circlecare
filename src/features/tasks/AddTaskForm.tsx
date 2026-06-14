@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Plus } from 'lucide-react'
 import type { TaskCategory } from '@/types/database'
 import type { MemberView } from '@/data/types'
 import { useTaskMutations } from '@/data/hooks'
@@ -8,6 +9,9 @@ interface Props {
   familyId: string
   members: MemberView[]
 }
+
+const inputClass =
+  'w-full rounded-xl bg-white/55 px-3 py-3 text-base text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-slate'
 
 export function AddTaskForm({ familyId, members }: Props) {
   const [open, setOpen] = useState(false)
@@ -43,24 +47,21 @@ export function AddTaskForm({ familyId, members }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="mb-5 w-full rounded-2xl bg-primary px-4 py-4 text-lg font-semibold text-white transition active:scale-[0.98]"
+        className="btn-soft mb-5 flex w-full items-center justify-center gap-2 px-4 py-3.5 text-base font-semibold transition active:scale-[0.99]"
       >
-        + Tilføj opgave
+        <Plus size={20} strokeWidth={1.5} /> Tilføj opgave
       </button>
     )
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mb-5 space-y-3 rounded-2xl bg-surface p-4 shadow-sm"
-    >
+    <form onSubmit={handleSubmit} className="glass mb-5 space-y-3 p-4">
       <input
         autoFocus
         placeholder="Hvad skal gøres?"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full rounded-xl bg-bg px-4 py-3 text-lg outline-none placeholder:text-muted focus:ring-2 focus:ring-primary"
+        className={`${inputClass} text-lg`}
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -69,11 +70,11 @@ export function AddTaskForm({ familyId, members }: Props) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as TaskCategory)}
-            className="mt-1 w-full rounded-xl bg-bg px-3 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-primary"
+            className={`mt-1 ${inputClass}`}
           >
             {TASK_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
-                {c.icon} {c.label}
+                {c.label}
               </option>
             ))}
           </select>
@@ -84,7 +85,7 @@ export function AddTaskForm({ familyId, members }: Props) {
           <select
             value={assignedTo}
             onChange={(e) => setAssignedTo(e.target.value)}
-            className="mt-1 w-full rounded-xl bg-bg px-3 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-primary"
+            className={`mt-1 ${inputClass}`}
           >
             <option value="">Ingen endnu</option>
             {members.map((m) => (
@@ -102,7 +103,7 @@ export function AddTaskForm({ familyId, members }: Props) {
           type="datetime-local"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="mt-1 w-full rounded-xl bg-bg px-3 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-primary"
+          className={`mt-1 ${inputClass}`}
         />
       </label>
 
@@ -113,14 +114,14 @@ export function AddTaskForm({ familyId, members }: Props) {
             reset()
             setOpen(false)
           }}
-          className="flex-1 rounded-xl bg-bg px-4 py-3 font-semibold text-primary"
+          className="btn-ghost flex-1 px-4 py-3 font-semibold"
         >
           Annullér
         </button>
         <button
           type="submit"
           disabled={!title.trim() || create.isPending}
-          className="flex-1 rounded-xl bg-primary px-4 py-3 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+          className="btn-soft flex-1 px-4 py-3 font-semibold transition active:scale-[0.98] disabled:opacity-60"
         >
           {create.isPending ? 'Gemmer…' : 'Gem opgave'}
         </button>

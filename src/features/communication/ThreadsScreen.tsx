@@ -2,7 +2,9 @@ import { useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { da } from 'date-fns/locale'
+import { ChevronLeft, ChevronRight, MessageSquare, Plus } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
+import { Icon } from '@/components/ui/icons'
 import {
   useFamilyId,
   useTracks,
@@ -37,26 +39,25 @@ export function ThreadsScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-24 pt-6">
-      <Link to="/beskeder" className="mb-4 flex items-center text-primary">
-        <span className="mr-1 text-2xl">‹</span> Beskeder
+    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+      <Link to="/beskeder" className="mb-4 flex items-center gap-1 text-slate">
+        <ChevronLeft size={22} strokeWidth={1.5} /> Beskeder
       </Link>
-      <header className="mb-5">
-        <h1 className="text-3xl font-bold">{track?.name ?? 'Samtale'}</h1>
-        <p className="mt-1 text-muted">Emner</p>
+      <header className="mb-6">
+        <p className="eyebrow">Emner</p>
+        <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
+          {track?.name ?? 'Samtale'}
+        </h1>
       </header>
 
       {open ? (
-        <form
-          onSubmit={handleCreate}
-          className="mb-5 space-y-3 rounded-2xl bg-surface p-4 shadow-sm"
-        >
+        <form onSubmit={handleCreate} className="glass mb-5 space-y-3 p-4">
           <input
             autoFocus
             placeholder="Hvad handler det om?"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-xl bg-bg px-4 py-3 text-lg outline-none placeholder:text-muted focus:ring-2 focus:ring-primary"
+            className="w-full rounded-xl bg-white/55 px-4 py-3 text-lg text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-slate"
           />
           <div className="flex gap-3">
             <button
@@ -65,14 +66,14 @@ export function ThreadsScreen() {
                 setTitle('')
                 setOpen(false)
               }}
-              className="flex-1 rounded-xl bg-bg px-4 py-3 font-semibold text-primary"
+              className="btn-ghost flex-1 px-4 py-3 font-semibold"
             >
               Annullér
             </button>
             <button
               type="submit"
               disabled={!title.trim() || createThread.isPending}
-              className="flex-1 rounded-xl bg-primary px-4 py-3 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+              className="btn-soft flex-1 px-4 py-3 font-semibold transition active:scale-[0.98] disabled:opacity-60"
             >
               {createThread.isPending ? 'Opretter…' : 'Opret emne'}
             </button>
@@ -81,14 +82,14 @@ export function ThreadsScreen() {
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="mb-5 w-full rounded-2xl bg-primary px-4 py-4 text-lg font-semibold text-white transition active:scale-[0.98]"
+          className="btn-soft mb-5 flex w-full items-center justify-center gap-2 px-4 py-3.5 text-base font-semibold transition active:scale-[0.99]"
         >
-          + Nyt emne
+          <Plus size={20} strokeWidth={1.5} /> Nyt emne
         </button>
       )}
 
       {isLoading && <p className="text-muted">Henter emner…</p>}
-      {isError && <p className="text-danger">Kunne ikke hente emner.</p>}
+      {isError && <p className="text-[#B23A3A]">Kunne ikke hente emner.</p>}
 
       {!isLoading && !isError && (
         <div className="space-y-3">
@@ -100,10 +101,12 @@ export function ThreadsScreen() {
             (threads ?? []).map((thread) => (
               <Link key={thread.id} to={`/beskeder/${trackId}/${thread.id}`}>
                 <Card onClick={() => {}}>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">💬</span>
+                  <div className="flex items-center gap-3.5">
+                    <Icon as={MessageSquare} className="text-steel" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold">{thread.title}</p>
+                      <p className="truncate font-medium text-ink">
+                        {thread.title}
+                      </p>
                       <p className="text-sm text-muted">
                         Aktiv for{' '}
                         {formatDistanceToNow(new Date(thread.last_activity_at), {
@@ -112,7 +115,7 @@ export function ThreadsScreen() {
                         siden
                       </p>
                     </div>
-                    <span className="text-xl text-muted">›</span>
+                    <ChevronRight size={20} strokeWidth={1.5} className="text-steel/60" />
                   </div>
                 </Card>
               </Link>

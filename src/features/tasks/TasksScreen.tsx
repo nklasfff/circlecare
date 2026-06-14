@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { da } from 'date-fns/locale'
+import { Check, Trash2 } from 'lucide-react'
 import type { Task } from '@/types/database'
 import type { MemberView } from '@/data/types'
 import { Card } from '@/components/ui/Card'
+import { CategoryIcon, Icon } from '@/components/ui/icons'
 import {
   useFamilyId,
   useMembers,
@@ -12,7 +14,7 @@ import {
 } from '@/data/hooks'
 import { useActiveMember } from '@/features/identity/ActiveMemberProvider'
 import { isCoordinator } from '@/features/identity/roles'
-import { categoryIcon, categoryLabel } from './categories'
+import { categoryLabel } from './categories'
 import { AddTaskForm } from './AddTaskForm'
 
 type Filter = 'mine' | 'all'
@@ -23,7 +25,6 @@ export function TasksScreen() {
   const { data: tasks, isLoading, isError } = useTasks(familyId)
   const { member } = useActiveMember()
 
-  // Rolle-ansvarlige starter på "Mine"; koordinator/omsorgsmodtager på "Alle".
   const [override, setOverride] = useState<Filter | null>(null)
   const defaultFilter: Filter =
     member && !isCoordinator(member) && !member.isCareRecipient ? 'mine' : 'all'
@@ -37,23 +38,28 @@ export function TasksScreen() {
   const openCount = visible.filter((t) => t.status !== 'done').length
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-24 pt-6">
-      <header className="mb-4">
-        <h1 className="text-3xl font-bold">Opgaver</h1>
-        <p className="mt-1 text-muted">
-          {openCount === 0
-            ? 'Alt er klaret 🎉'
-            : `${openCount} ${openCount === 1 ? 'opgave' : 'opgaver'} at gøre`}
-        </p>
+    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+      <header className="enter mb-6">
+        <p className="eyebrow">Opgaver</p>
+        <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
+          {openCount === 0 ? (
+            'Alt er klaret.'
+          ) : (
+            <>
+              <span className="text-accent">{openCount}</span>{' '}
+              {openCount === 1 ? 'ting' : 'ting'} at gøre.
+            </>
+          )}
+        </h1>
       </header>
 
       <div className="mb-5 flex gap-2">
-        <FilterTab active={filter === 'mine'} onClick={() => setOverride('mine')}>
+        <Segment active={filter === 'mine'} onClick={() => setOverride('mine')}>
           Mine
-        </FilterTab>
-        <FilterTab active={filter === 'all'} onClick={() => setOverride('all')}>
+        </Segment>
+        <Segment active={filter === 'all'} onClick={() => setOverride('all')}>
           Alle
-        </FilterTab>
+        </Segment>
       </div>
 
       {familyId && members && (
@@ -61,7 +67,7 @@ export function TasksScreen() {
       )}
 
       {isLoading && <p className="text-muted">Henter opgaver…</p>}
-      {isError && <p className="text-danger">Kunne ikke hente opgaver.</p>}
+      {isError && <p className="text-[#B23A3A]">Kunne ikke hente opgaver.</p>}
 
       {!isLoading && !isError && (
         <div className="space-y-3">
@@ -84,7 +90,7 @@ export function TasksScreen() {
   )
 }
 
-function FilterTab({
+function Segment({
   active,
   onClick,
   children,
@@ -96,8 +102,8 @@ function FilterTab({
   return (
     <button
       onClick={onClick}
-      className={`flex-1 rounded-xl px-4 py-2 font-semibold transition ${
-        active ? 'bg-primary text-white' : 'bg-surface text-primary'
+      className={`flex-1 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+        active ? 'bg-slate text-white' : 'btn-soft'
       }`}
     >
       {children}
@@ -113,10 +119,7 @@ function TaskRow({ task, members }: { task: Task; members: MemberView[] }) {
     : 'Uden tidspunkt'
 
   return (
-    <Card
-      accent={done ? '#34c759' : task.assigned_to ? undefined : '#ff3b30'}
-      className={done ? 'opacity-60' : ''}
-    >
+    <Card className={done ? 'opacity-55' : ''}>
       <div className="flex items-center gap-3">
         <button
           aria-label={done ? 'Markér som ikke klaret' : 'Markér som klaret'}
@@ -126,19 +129,19 @@ function TaskRow({ task, members }: { task: Task; members: MemberView[] }) {
               patch: { status: done ? 'todo' : 'done' },
             })
           }
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-base transition ${
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition ${
             done
-              ? 'border-success bg-success text-white'
-              : 'border-muted text-transparent'
+              ? 'border-slate bg-slate text-white'
+              : 'border-steel/50 text-transparent'
           }`}
         >
-          ✓
+          <Check size={16} strokeWidth={1.5} />
         </button>
 
-        <span className="text-2xl">{categoryIcon(task.category)}</span>
+        <CategoryIcon category={task.category} className="text-steel" />
 
         <div className="min-w-0 flex-1">
-          <p className={`truncate font-semibold ${done ? 'line-through' : ''}`}>
+          <p className={`truncate font-medium text-ink ${done ? 'line-through' : ''}`}>
             {task.title}
           </p>
           <p className="truncate text-sm capitalize text-muted">
@@ -149,9 +152,9 @@ function TaskRow({ task, members }: { task: Task; members: MemberView[] }) {
         <button
           aria-label="Slet opgave"
           onClick={() => remove.mutate(task.id)}
-          className="shrink-0 px-1 text-lg text-muted transition active:scale-90"
+          className="shrink-0 text-steel/70 transition active:scale-90"
         >
-          ✕
+          <Icon as={Trash2} size={18} />
         </button>
       </div>
 
@@ -165,11 +168,11 @@ function TaskRow({ task, members }: { task: Task; members: MemberView[] }) {
               patch: { assigned_to: e.target.value || null },
             })
           }
-          className={`flex-1 rounded-xl bg-bg px-3 py-2 text-base outline-none focus:ring-2 focus:ring-primary ${
-            task.assigned_to ? 'text-ink' : 'font-semibold text-danger'
+          className={`flex-1 rounded-xl bg-white/55 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-slate ${
+            task.assigned_to ? 'text-ink' : 'font-semibold text-[#3C4E86]'
           }`}
         >
-          <option value="">Mangler ansvarlig</option>
+          <option value="">Ingen ansvarlig</option>
           {members.map((m) => (
             <option key={m.membershipId} value={m.membershipId}>
               {m.displayName}

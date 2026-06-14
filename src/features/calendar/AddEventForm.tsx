@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
+import { Plus } from 'lucide-react'
 import type { EventCategory } from '@/types/database'
 import type { MemberView } from '@/data/types'
 import { useEventMutations } from '@/data/hooks'
@@ -11,6 +12,9 @@ interface Props {
   defaultDay: Date
 }
 
+const inputClass =
+  'w-full rounded-xl bg-white/55 px-3 py-3 text-base text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-slate'
+
 export function AddEventForm({ familyId, members, defaultDay }: Props) {
   const [open, setOpen] = useState(false)
   const { create } = useEventMutations()
@@ -19,9 +23,7 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
   const [location, setLocation] = useState('')
   const [category, setCategory] = useState<EventCategory>('visit')
   const [coveredBy, setCoveredBy] = useState('')
-  const [when, setWhen] = useState(
-    format(defaultDay, "yyyy-MM-dd'T'10:00"),
-  )
+  const [when, setWhen] = useState(format(defaultDay, "yyyy-MM-dd'T'10:00"))
 
   function reset() {
     setTitle('')
@@ -51,30 +53,27 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="mb-5 w-full rounded-2xl bg-primary px-4 py-4 text-lg font-semibold text-white transition active:scale-[0.98]"
+        className="btn-soft mb-5 flex w-full items-center justify-center gap-2 px-4 py-3.5 text-base font-semibold transition active:scale-[0.99]"
       >
-        + Tilføj aftale
+        <Plus size={20} strokeWidth={1.5} /> Tilføj aftale
       </button>
     )
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mb-5 space-y-3 rounded-2xl bg-surface p-4 shadow-sm"
-    >
+    <form onSubmit={handleSubmit} className="glass mb-5 space-y-3 p-4">
       <input
         autoFocus
         placeholder="Hvad sker der?"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full rounded-xl bg-bg px-4 py-3 text-lg outline-none placeholder:text-muted focus:ring-2 focus:ring-primary"
+        className={`${inputClass} text-lg`}
       />
       <input
         placeholder="Hvor? (valgfrit)"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        className="w-full rounded-xl bg-bg px-4 py-3 text-base outline-none placeholder:text-muted focus:ring-2 focus:ring-primary"
+        className={inputClass}
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -83,11 +82,11 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as EventCategory)}
-            className="mt-1 w-full rounded-xl bg-bg px-3 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-primary"
+            className={`mt-1 ${inputClass}`}
           >
             {EVENT_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
-                {c.icon} {c.label}
+                {c.label}
               </option>
             ))}
           </select>
@@ -98,7 +97,7 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
           <select
             value={coveredBy}
             onChange={(e) => setCoveredBy(e.target.value)}
-            className="mt-1 w-full rounded-xl bg-bg px-3 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-primary"
+            className={`mt-1 ${inputClass}`}
           >
             <option value="">Ingen endnu</option>
             {members.map((m) => (
@@ -116,7 +115,7 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
           type="datetime-local"
           value={when}
           onChange={(e) => setWhen(e.target.value)}
-          className="mt-1 w-full rounded-xl bg-bg px-3 py-3 text-base text-ink outline-none focus:ring-2 focus:ring-primary"
+          className={`mt-1 ${inputClass}`}
         />
       </label>
 
@@ -127,14 +126,14 @@ export function AddEventForm({ familyId, members, defaultDay }: Props) {
             reset()
             setOpen(false)
           }}
-          className="flex-1 rounded-xl bg-bg px-4 py-3 font-semibold text-primary"
+          className="btn-ghost flex-1 px-4 py-3 font-semibold"
         >
           Annullér
         </button>
         <button
           type="submit"
           disabled={!title.trim() || create.isPending}
-          className="flex-1 rounded-xl bg-primary px-4 py-3 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+          className="btn-soft flex-1 px-4 py-3 font-semibold transition active:scale-[0.98] disabled:opacity-60"
         >
           {create.isPending ? 'Gemmer…' : 'Gem aftale'}
         </button>

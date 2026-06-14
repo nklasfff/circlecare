@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { format } from 'date-fns'
+import { ChevronLeft, SendHorizontal } from 'lucide-react'
 import {
   useFamilyId,
   useMembers,
@@ -41,17 +42,19 @@ export function ThreadScreen() {
   }
 
   return (
-    <div className="mx-auto flex h-full max-w-md flex-col px-4 pt-6">
+    <div className="mx-auto flex h-full max-w-md flex-col px-5 pt-7">
       <Link
         to={`/beskeder/${trackId}`}
-        className="mb-3 flex items-center text-primary"
+        className="mb-3 flex items-center gap-1 text-slate"
       >
-        <span className="mr-1 text-2xl">‹</span> Tilbage
+        <ChevronLeft size={22} strokeWidth={1.5} /> Tilbage
       </Link>
-      <h1 className="mb-4 text-2xl font-bold">{thread?.title ?? 'Emne'}</h1>
+      <h1 className="font-display mb-4 text-2xl text-ink">
+        {thread?.title ?? 'Emne'}
+      </h1>
 
       {isLoading && <p className="text-muted">Henter beskeder…</p>}
-      {isError && <p className="text-danger">Kunne ikke hente beskeder.</p>}
+      {isError && <p className="text-[#B23A3A]">Kunne ikke hente beskeder.</p>}
 
       <div className="flex-1 space-y-3 overflow-y-auto pb-4">
         {(messages ?? []).map((msg) => {
@@ -67,8 +70,10 @@ export function ThreadScreen() {
                 </span>
               )}
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                  mine ? 'bg-primary text-white' : 'bg-surface text-ink'
+                className={`max-w-[80%] px-4 py-2.5 ${
+                  mine
+                    ? 'rounded-2xl bg-slate text-white'
+                    : 'glass rounded-2xl text-ink'
                 }`}
               >
                 {msg.body}
@@ -82,22 +87,20 @@ export function ThreadScreen() {
         <div ref={bottomRef} />
       </div>
 
-      <form
-        onSubmit={handleSend}
-        className="sticky bottom-0 flex gap-2 bg-bg py-3"
-      >
+      <form onSubmit={handleSend} className="sticky bottom-0 flex gap-2 py-3">
         <input
           placeholder="Skriv en besked…"
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="flex-1 rounded-full bg-surface px-4 py-3 text-base outline-none placeholder:text-muted focus:ring-2 focus:ring-primary"
+          className="glass flex-1 rounded-full px-4 py-3 text-base text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-slate"
         />
         <button
           type="submit"
+          aria-label="Send"
           disabled={!body.trim() || sendMessage.isPending}
-          className="rounded-full bg-primary px-5 py-3 font-semibold text-white transition active:scale-95 disabled:opacity-60"
+          className="btn-soft flex h-12 w-12 shrink-0 items-center justify-center transition active:scale-95 disabled:opacity-50"
         >
-          Send
+          <SendHorizontal size={20} strokeWidth={1.5} />
         </button>
       </form>
     </div>
