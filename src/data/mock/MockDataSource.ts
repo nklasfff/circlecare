@@ -15,6 +15,7 @@ import type {
   NewTaskInput,
   NewThreadInput,
   TaskPatch,
+  ThreadPatch,
 } from '../types'
 import {
   FAMILY_ID,
@@ -204,11 +205,34 @@ export class MockDataSource implements DataSource {
     return this.tracks
   }
 
+  async getFamilyThreads(familyId: string): Promise<Thread[]> {
+    await delay()
+    const trackIds = new Set(
+      this.tracks.filter((t) => t.family_id === familyId).map((t) => t.id),
+    )
+    return this.threads
+      .filter((t) => trackIds.has(t.track_id))
+      .sort((a, b) => (a.last_activity_at < b.last_activity_at ? 1 : -1))
+  }
+
   async getThreads(trackId: string): Promise<Thread[]> {
     await delay()
     return this.threads
       .filter((t) => t.track_id === trackId)
       .sort((a, b) => (a.last_activity_at < b.last_activity_at ? 1 : -1))
+  }
+
+  async updateThread(id: string, patch: ThreadPatch): Promise<Thread> {
+    await delay()
+    let updated: Thread | undefined
+    this.threads = this.threads.map((t) => {
+      if (t.id !== id) return t
+      updated = { ...t, ...patch }
+      return updated
+    })
+    if (!updated) throw new Error(`Tråd ${id} findes ikke`)
+    this.notify()
+    return updated
   }
 
   async getMessages(threadId: string): Promise<Message[]> {

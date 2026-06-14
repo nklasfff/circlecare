@@ -14,6 +14,7 @@ import type {
   NewTaskInput,
   NewThreadInput,
   TaskPatch,
+  ThreadPatch,
 } from './types'
 
 /**
@@ -65,8 +66,14 @@ export interface DataSource {
   /** Kommunikations-spor i en familie. */
   getTracks(familyId: string): Promise<Track[]>
 
+  /** Alle emne-tråde i en familie (på tværs af spor) — bruges af orkestratoren. */
+  getFamilyThreads(familyId: string): Promise<Thread[]>
+
   /** Emne-tråde i et spor, nyeste aktivitet først. */
   getThreads(trackId: string): Promise<Thread[]>
+
+  /** Opdatér en tråd (fx markér som løst). */
+  updateThread(id: string, patch: ThreadPatch): Promise<Thread>
 
   /** Beskeder i en tråd, ældste først. */
   getMessages(threadId: string): Promise<Message[]>

@@ -1,4 +1,4 @@
-import { startOfWeek, addDays, set, subMinutes } from 'date-fns'
+import { startOfWeek, addDays, set, subMinutes, subDays } from 'date-fns'
 import type {
   CalendarEvent,
   Message,
@@ -79,18 +79,20 @@ export const tracks: Track[] = [
 ]
 
 const min = (m: number) => subMinutes(now, m).toISOString()
+const days = (d: number) => subDays(now, d).toISOString()
 
 export const threads: Thread[] = [
-  { id: 'th-watch', track_id: 'tr-sib', title: 'Smartwatch til far?', status: 'open', created_by: MEMBER_IDS.peter, created_at: min(180), last_activity_at: min(40) },
+  // Bevidst "hængende" beslutning: åben, men ingen aktivitet i ~5 dage.
+  { id: 'th-watch', track_id: 'tr-sib', title: 'Smartwatch til far?', status: 'open', created_by: MEMBER_IDS.peter, created_at: days(8), last_activity_at: days(5) },
   { id: 'th-jul', track_id: 'tr-sib', title: 'Hvem holder jul i år?', status: 'open', created_by: MEMBER_IDS.maria, created_at: min(120), last_activity_at: min(95) },
   { id: 'th-gaatur', track_id: 'tr-far', title: 'Gåture i denne uge', status: 'open', created_by: MEMBER_IDS.peter, created_at: min(75), last_activity_at: min(60) },
 ]
 
 export const messages: Message[] = [
-  { id: 'msg-1', thread_id: 'th-watch', author: MEMBER_IDS.peter, body: 'Skal vi gå sammen om et Apple Watch SE til far?', created_at: min(180) },
-  { id: 'msg-2', thread_id: 'th-watch', author: MEMBER_IDS.anne, body: 'God idé – jeg kan undersøge prisen i morgen.', created_at: min(90) },
-  { id: 'msg-3', thread_id: 'th-watch', author: MEMBER_IDS.maria, body: 'Jeg er med på den 👍', created_at: min(40) },
+  { id: 'msg-1', thread_id: 'th-watch', author: MEMBER_IDS.peter, body: 'Skal vi gå sammen om et Apple Watch SE til far?', created_at: days(8) },
+  { id: 'msg-2', thread_id: 'th-watch', author: MEMBER_IDS.anne, body: 'God idé – jeg kan undersøge prisen.', created_at: days(6) },
+  { id: 'msg-3', thread_id: 'th-watch', author: MEMBER_IDS.maria, body: 'Jeg er med på den.', created_at: days(5) },
   { id: 'msg-4', thread_id: 'th-jul', author: MEMBER_IDS.maria, body: 'Skal vi skiftes til at holde jul i år?', created_at: min(120) },
-  { id: 'msg-5', thread_id: 'th-jul', author: MEMBER_IDS.lars, body: 'Vi kan godt lægge hus til 🎄', created_at: min(95) },
+  { id: 'msg-5', thread_id: 'th-jul', author: MEMBER_IDS.lars, body: 'Vi kan godt lægge hus til.', created_at: min(95) },
   { id: 'msg-6', thread_id: 'th-gaatur', author: MEMBER_IDS.peter, body: 'Far, har du lyst til en gåtur onsdag eftermiddag?', created_at: min(60) },
 ]
