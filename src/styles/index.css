@@ -1,31 +1,35 @@
 @import 'tailwindcss';
 
 /*
-  Design-tokens porteret fra prototypen (prototype/index.html).
-  Varm, enkel iOS-agtig palette med store flader og bløde kort.
+  CircleCare design-system — "blå reference".
+  Frostet glas over en fast blå gradient. Cormorant Garamond til display,
+  Inter Tight til UI. Ingen varme accenter; alt lever i den blå familie.
 */
 @theme {
-  --color-bg: #cbd5dc;
-  --color-surface: #e7ecf0;
-  --color-surface-2: #ffffff;
+  /* Tekst */
+  --color-ink: #1f2a40; /* primær tekst */
+  --color-muted: #56627e; /* sekundær tekst / meta */
+  --color-steel: #4d5e83; /* ikoner, stille elementer */
+  --color-slate: #2c3c61; /* aktiv / primær / tællere */
+  --color-accent: #3c5896; /* hero-accentord */
+  --color-action: #3c4e86; /* udfyldt handlingsknap + "kræver handling" */
 
-  --color-ink: #2e3842;
-  --color-muted: #8e8e93;
-  --color-line: #cbd5dc;
+  /* Flader (bruges hvor glas ikke kan; ellers .glass) */
+  --color-bg: #dce4f1; /* lyse input-fyld */
+  --color-surface: rgba(255, 255, 255, 0.64);
+  --color-surface-2: rgba(255, 255, 255, 0.72);
 
-  --color-primary: #007aff;
-  --color-primary-strong: #0051d5;
-  --color-accent: #5856d6;
+  /* Bevarede tokens til endnu ikke redesignede skærme */
+  --color-primary: #2c3c61;
+  --color-danger: #b23a3a;
+  --color-success: #4d5e83;
 
-  --color-danger: #ff3b30;
-  --color-warning: #ff9500;
-  --color-success: #34c759;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, sans-serif;
 
-  --radius-card: 16px;
-  --radius-pill: 999px;
-
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Helvetica, Arial, sans-serif;
+  --radius-row: 18px;
+  --radius-screen: 34px;
 }
 
 * {
@@ -41,7 +45,63 @@ body,
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: var(--color-bg);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fast lodret gradient bag alt indhold; indhold scroller hen over den. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, #c6d6ed 0%, #90a6cd 50%, #57699a 100%);
+}
+
+/* Frostet glas-flade til kort og rækker. */
+.glass {
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: var(--radius-row);
+  box-shadow: 0 4px 16px -10px rgba(28, 38, 64, 0.45);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* Solid fallback hvor backdrop-filter ikke understøttes. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+  }
+}
+
+/* Eyebrow-labels: Inter Tight 600, versaler, vid sporing. */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .enter {
+    animation: enter-rise 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+}
+
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

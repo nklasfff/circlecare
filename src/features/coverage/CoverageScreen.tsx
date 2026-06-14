@@ -2,23 +2,18 @@ import { useMemo } from 'react'
 import { format, isToday, isSameDay } from 'date-fns'
 import { da } from 'date-fns/locale'
 import type { CoverageItem } from '@/types/database'
-import type { MemberView } from '@/data/types'
 import { Card } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
-import { useFamilyId, useMembers, useWeekCoverage, memberName } from '@/data/hooks'
+import { CategoryIcon } from '@/components/ui/icons'
+import {
+  useFamilyId,
+  useMembers,
+  useWeekCoverage,
+  useTaskMutations,
+  useEventMutations,
+  memberName,
+} from '@/data/hooks'
 import { useActiveMember } from '@/features/identity/ActiveMemberProvider'
-import { isCoordinator, matchesRole } from '@/features/identity/roles'
-
-const CATEGORY_ICON: Record<string, string> = {
-  medicine: '💊',
-  food: '🍲',
-  transport: '🚗',
-  appointment: '📅',
-  visit: '👋',
-  medical: '👨‍⚕️',
-  meal: '🍽️',
-  other: '•',
-}
 
 function eachDay(items: CoverageItem[]): { day: Date; items: CoverageItem[] }[] {
   const groups: { day: Date; items: CoverageItem[] }[] = []
@@ -40,28 +35,43 @@ export function CoverageScreen() {
   const activeId = member?.membershipId ?? null
 
   const groups = useMemo(() => eachDay(items ?? []), [items])
+  const uncovered = useMemo(
+    () => (items ?? []).filter((i) => i.uncovered).length,
+    [items],
+  )
+
   const todayGroup = groups.find((g) => isToday(g.day))
   const restGroups = groups.filter((g) => !isToday(g.day))
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-24 pt-6">
-      <header className="mb-5">
-        <h1 className="text-3xl font-bold capitalize">Dækning</h1>
-        <p className="mt-1 text-muted">
-          {format(new Date(), 'EEEE d. MMMM', { locale: da })} – uge{' '}
+    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+      <header className="enter mb-7">
+        <p className="eyebrow">
+          {format(new Date(), 'EEEE d. MMMM', { locale: da })} · uge{' '}
           {format(new Date(), 'w', { locale: da })}
         </p>
+        <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
+          {uncovered === 0 ? (
+            <>
+              Alt er <span className="text-accent">dækket</span> i dag.
+            </>
+          ) : (
+            <>
+              Det meste er <span className="text-accent">dækket</span> i dag.
+            </>
+          )}
+        </h1>
+        {uncovered > 0 && (
+          <p className="mt-2 text-muted">
+            {uncovered} {uncovered === 1 ? 'ting venter' : 'ting venter'} på, at
+            nogen tager den.
+          </p>
+        )}
       </header>
-
-      {!isLoading && !isError && member && (
-        <Lens member={member} items={items ?? []} />
-      )}
 
       {isLoading && <p className="text-muted">Henter dækning…</p>}
       {isError && (
-        <p className="text-danger">
-          Kunne ikke hente dækning. Tjek din forbindelse.
-        </p>
+        <p className="text-[#B23A3A]">Kunne ikke hente dækning.</p>
       )}
 
       {!isLoading && !isError && (
@@ -84,14 +94,14 @@ export function CoverageScreen() {
           </Section>
 
           <Section
-            title={`Resten af ugen (til ${format(weekEnd, 'd. MMM', {
+            title={`Resten af ugen · til ${format(weekEnd, 'd. MMM', {
               locale: da,
-            })})`}
+            })}`}
           >
             {restGroups.length > 0 ? (
               restGroups.map((group) => (
-                <div key={group.day.toISOString()} className="mb-4">
-                  <p className="mb-2 ml-1 text-sm font-semibold capitalize text-muted">
+                <div key={group.day.toISOString()} className="space-y-3">
+                  <p className="ml-1 mt-1 text-sm font-medium capitalize text-muted">
                     {format(group.day, 'EEEE d. MMM', { locale: da })}
                   </p>
                   {group.items.map((item) => (
@@ -116,68 +126,6 @@ export function CoverageScreen() {
   )
 }
 
-/** Rolle-tilpasset overblik øverst: koordinatoren ser huller, en rolle-ansvarlig
- *  ser sit eget ansvar, og den der modtager omsorg ser sin egen uge. */
-function Lens({ member, items }: { member: MemberView; items: CoverageItem[] }) {
-  const uncovered = items.filter((i) => i.uncovered)
-  const mine = items.filter((i) => i.responsible === member.membershipId)
-  const roleUncovered = uncovered.filter((i) => matchesRole(member, i.category))
-
-  // Koordinator: fokus på huller i hele familien.
-  if (isCoordinator(member)) {
-    const ok = uncovered.length === 0
-    return (
-      <LensCard tone={ok ? 'green' : 'orange'}>
-        {ok
-          ? '✓ Alt er dækket i denne uge'
-          : `⚠️ ${uncovered.length} ${uncovered.length === 1 ? 'ting mangler' : 'ting mangler'} en ansvarlig — fordel dem`}
-      </LensCard>
-    )
-  }
-
-  // Modtager omsorg (far/mor): neutral oversigt over egen uge.
-  if (member.isCareRecipient) {
-    return (
-      <LensCard tone="blue">
-        🗓️ Din uge: {items.length}{' '}
-        {items.length === 1 ? 'ting planlagt' : 'ting planlagt'}
-      </LensCard>
-    )
-  }
-
-  // Rolle-ansvarlig (mad/læge/transport): eget ansvar + nudge om huller i rollen.
-  return (
-    <LensCard tone={mine.length > 0 ? 'green' : 'blue'}>
-      {mine.length > 0
-        ? `Du dækker ${mine.length} ${mine.length === 1 ? 'ting' : 'ting'} denne uge`
-        : 'Du har intet planlagt denne uge'}
-      {roleUncovered.length > 0 && (
-        <span className="mt-1 block text-sm font-normal" style={{ color: '#e65100' }}>
-          {roleUncovered.length} i dit område mangler en ansvarlig
-        </span>
-      )}
-    </LensCard>
-  )
-}
-
-function LensCard({
-  tone,
-  children,
-}: {
-  tone: 'green' | 'orange' | 'blue'
-  children: React.ReactNode
-}) {
-  const bg = tone === 'green' ? '#e8f5e9' : tone === 'orange' ? '#fff3e0' : '#e7f0ff'
-  const fg = tone === 'green' ? '#2e7d32' : tone === 'orange' ? '#e65100' : '#0051d5'
-  return (
-    <div className="mb-5 rounded-2xl p-4" style={{ background: bg }}>
-      <p className="font-semibold" style={{ color: fg }}>
-        {children}
-      </p>
-    </div>
-  )
-}
-
 function Section({
   title,
   children,
@@ -186,10 +134,8 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="mb-6">
-      <h2 className="mb-2 ml-1 text-xs font-semibold uppercase tracking-wide text-muted">
-        {title}
-      </h2>
+    <section className="mb-7">
+      <h2 className="eyebrow mb-3 ml-1">{title}</h2>
       <div className="space-y-3">{children}</div>
     </section>
   )
@@ -207,32 +153,70 @@ function CoverageRow({
   const time = item.at ? format(new Date(item.at), 'HH:mm') : null
   const done = item.status === 'done'
 
+  if (item.uncovered) return <ActionRow item={item} time={time} />
+
   return (
-    <Card
-      accent={item.uncovered ? '#ff3b30' : '#34c759'}
-      className={`${done ? 'opacity-50' : ''} ${isMine ? 'ring-2 ring-primary/40' : ''}`}
-    >
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">{CATEGORY_ICON[item.category] ?? '•'}</span>
+    <Card className={done ? 'opacity-55' : ''}>
+      <div className="flex items-center gap-3.5">
+        <CategoryIcon category={item.category} className="text-steel" />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{item.title}</p>
+          <p className="truncate font-medium text-ink">{item.title}</p>
           <p className="text-sm text-muted">
             {time ? `Kl. ${time}` : 'Uden tidspunkt'}
-            {item.kind === 'task' && done ? ' · Klaret ✓' : ''}
+            {item.kind === 'task' && done ? ' · klaret' : ''}
           </p>
         </div>
-        {item.uncovered ? (
-          <span className="rounded-full bg-danger/15 px-3 py-1 text-xs font-semibold text-danger">
-            Mangler ansvarlig
-          </span>
-        ) : isMine ? (
-          <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-            Dig
-          </span>
-        ) : (
+        <div className={isMine ? 'rounded-full ring-2 ring-slate/40' : ''}>
           <Avatar name={responsibleName} size={32} />
-        )}
+        </div>
       </div>
     </Card>
+  )
+}
+
+/** "Kræver handling" — samme blå familie, med den eneste udfyldte knap. */
+function ActionRow({ item, time }: { item: CoverageItem; time: string | null }) {
+  const { member } = useActiveMember()
+  const { update: updateTask } = useTaskMutations()
+  const { update: updateEvent } = useEventMutations()
+
+  function take() {
+    if (!member) return
+    if (item.kind === 'task') {
+      updateTask.mutate({ id: item.id, patch: { assigned_to: member.membershipId } })
+    } else {
+      updateEvent.mutate({ id: item.id, patch: { covered_by: member.membershipId } })
+    }
+  }
+
+  return (
+    <div
+      className="rounded-[18px] p-4"
+      style={{
+        background: 'rgba(60,78,134,.15)',
+        border: '1px solid rgba(60,78,134,.40)',
+      }}
+    >
+      <div className="flex items-center gap-3.5">
+        <CategoryIcon category={item.category} className="text-[#3C4E86]" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-[#2E4680]">{item.title}</p>
+          <p className="text-sm" style={{ color: '#4C619B' }}>
+            {time ? `Kl. ${time} · ` : ''}Ingen ansvarlig
+          </p>
+        </div>
+        <button
+          onClick={take}
+          className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95"
+          style={{
+            background: '#3C4E86',
+            color: '#EAF0FB',
+            boxShadow: '0 6px 16px -8px rgba(28,38,64,.7)',
+          }}
+        >
+          Tag den
+        </button>
+      </div>
+    </div>
   )
 }

@@ -11,9 +11,9 @@ export function Card({ children, accent, className = '', onClick }: CardProps) {
   return (
     <div
       onClick={onClick}
-      style={accent ? { borderLeft: `4px solid ${accent}` } : undefined}
-      className={`rounded-2xl bg-surface p-4 shadow-sm ${
-        onClick ? 'cursor-pointer transition active:scale-[0.98]' : ''
+      style={accent ? { borderLeft: `3px solid ${accent}` } : undefined}
+      className={`glass p-4 ${
+        onClick ? 'cursor-pointer transition active:scale-[0.99]' : ''
       } ${className}`}
     >
       {children}
