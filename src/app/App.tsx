@@ -4,6 +4,7 @@ import { AppLayout } from './AppLayout'
 import { ComingSoon } from './ComingSoon'
 import { CoverageScreen } from '@/features/coverage/CoverageScreen'
 import { TasksScreen } from '@/features/tasks/TasksScreen'
+import { CalendarScreen } from '@/features/calendar/CalendarScreen'
 
 export function App() {
   return (
@@ -13,7 +14,7 @@ export function App() {
           <Route element={<AppLayout />}>
             <Route index element={<CoverageScreen />} />
             <Route path="opgaver" element={<TasksScreen />} />
-            <Route path="kalender" element={<ComingSoon title="Kalender" />} />
+            <Route path="kalender" element={<CalendarScreen />} />
             <Route path="beskeder" element={<ComingSoon title="Beskeder" />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

@@ -6,7 +6,13 @@ import {
 } from '@tanstack/react-query'
 import { startOfWeek, endOfWeek } from 'date-fns'
 import { useDataSource } from './DataProvider'
-import type { MemberView, NewTaskInput, TaskPatch } from './types'
+import type {
+  EventPatch,
+  MemberView,
+  NewEventInput,
+  NewTaskInput,
+  TaskPatch,
+} from './types'
 
 export function useFamilyId() {
   const ds = useDataSource()
@@ -96,6 +102,55 @@ export function useTaskMutations() {
   })
   const remove = useMutation({
     mutationFn: (id: string) => ds.deleteTask(id),
+    onSuccess: invalidate,
+  })
+
+  return { create, update, remove }
+}
+
+export function useEvents(familyId: string | null | undefined) {
+  const ds = useDataSource()
+  const query = useQuery({
+    queryKey: ['events', familyId],
+    enabled: Boolean(familyId),
+    queryFn: () => ds.getEvents(familyId as string),
+  })
+
+  const { refetch } = query
+  useEffect(() => {
+    if (!familyId) return
+    return ds.subscribe(familyId, () => {
+      void refetch()
+    })
+  }, [ds, familyId, refetch])
+
+  return query
+}
+
+/**
+ * Mutationer på begivenheder. Efter hver ændring genindlæses begivenheds- og
+ * dækningslisten, så kalenderen og dækningsbilledet altid er i sync.
+ */
+export function useEventMutations() {
+  const ds = useDataSource()
+  const queryClient = useQueryClient()
+
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: ['events'] })
+    void queryClient.invalidateQueries({ queryKey: ['coverage'] })
+  }
+
+  const create = useMutation({
+    mutationFn: (input: NewEventInput) => ds.createEvent(input),
+    onSuccess: invalidate,
+  })
+  const update = useMutation({
+    mutationFn: (vars: { id: string; patch: EventPatch }) =>
+      ds.updateEvent(vars.id, vars.patch),
+    onSuccess: invalidate,
+  })
+  const remove = useMutation({
+    mutationFn: (id: string) => ds.deleteEvent(id),
     onSuccess: invalidate,
   })
 

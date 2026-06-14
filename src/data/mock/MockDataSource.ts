@@ -2,7 +2,9 @@ import type { CalendarEvent, Task } from '@/types/database'
 import type { DataSource } from '../source'
 import type {
   CoverageItem,
+  EventPatch,
   MemberView,
+  NewEventInput,
   NewTaskInput,
   TaskPatch,
 } from '../types'
@@ -128,6 +130,52 @@ export class MockDataSource implements DataSource {
   async deleteTask(id: string): Promise<void> {
     await delay()
     this.tasks = this.tasks.filter((t) => t.id !== id)
+    this.notify()
+  }
+
+  async getEvents(familyId: string): Promise<CalendarEvent[]> {
+    await delay()
+    if (familyId !== FAMILY_ID) return []
+    return [...this.events].sort((a, b) =>
+      a.starts_at < b.starts_at ? -1 : a.starts_at > b.starts_at ? 1 : 0,
+    )
+  }
+
+  async createEvent(input: NewEventInput): Promise<CalendarEvent> {
+    await delay()
+    const event: CalendarEvent = {
+      id: `e-${crypto.randomUUID()}`,
+      family_id: input.family_id,
+      title: input.title,
+      location: input.location,
+      starts_at: input.starts_at,
+      ends_at: input.ends_at,
+      covered_by: input.covered_by,
+      category: input.category,
+      notes: null,
+      created_at: new Date().toISOString(),
+    }
+    this.events = [...this.events, event]
+    this.notify()
+    return event
+  }
+
+  async updateEvent(id: string, patch: EventPatch): Promise<CalendarEvent> {
+    await delay()
+    let updated: CalendarEvent | undefined
+    this.events = this.events.map((e) => {
+      if (e.id !== id) return e
+      updated = { ...e, ...patch }
+      return updated
+    })
+    if (!updated) throw new Error(`Begivenhed ${id} findes ikke`)
+    this.notify()
+    return updated
+  }
+
+  async deleteEvent(id: string): Promise<void> {
+    await delay()
+    this.events = this.events.filter((e) => e.id !== id)
     this.notify()
   }
 

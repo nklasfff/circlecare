@@ -1,5 +1,12 @@
-import type { Task } from '@/types/database'
-import type { CoverageItem, MemberView, NewTaskInput, TaskPatch } from './types'
+import type { CalendarEvent, Task } from '@/types/database'
+import type {
+  CoverageItem,
+  EventPatch,
+  MemberView,
+  NewEventInput,
+  NewTaskInput,
+  TaskPatch,
+} from './types'
 
 /**
  * Backend-uafhængig grænseflade som alle skærme går igennem.
@@ -34,6 +41,18 @@ export interface DataSource {
 
   /** Slet en opgave. */
   deleteTask(id: string): Promise<void>
+
+  /** Alle kalender-begivenheder i en familie, sorteret efter starttidspunkt. */
+  getEvents(familyId: string): Promise<CalendarEvent[]>
+
+  /** Opret en ny begivenhed. */
+  createEvent(input: NewEventInput): Promise<CalendarEvent>
+
+  /** Opdatér en begivenhed (fx skift hvem der dækker). */
+  updateEvent(id: string, patch: EventPatch): Promise<CalendarEvent>
+
+  /** Slet en begivenhed. */
+  deleteEvent(id: string): Promise<void>
 
   /**
    * Abonnér på ændringer i familiens data. Mock-kilden kalder onChange ved
