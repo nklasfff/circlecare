@@ -107,6 +107,26 @@ body::before {
   font-family: var(--font-display);
 }
 
+/*
+  Desktop/tablet-ramme: centrér app-kolonnen i 700px med tynde lodrette
+  rammelinjer langs begge sider. Gradienten er fuld-bleed bagved (body::before),
+  så ind- og udvendigt ser ens ud — kun linjerne afgrænser kolonnen.
+  Under 768px (telefon) ændres ingenting.
+*/
+.app-frame {
+  width: 100%;
+  max-width: 700px;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .app-frame {
+    border-left: 1.5px solid rgba(255, 255, 255, 0.6);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 60px -20px rgba(28, 38, 64, 0.45);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .enter {
     animation: enter-rise 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;

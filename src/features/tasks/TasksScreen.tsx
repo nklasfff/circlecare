@@ -38,7 +38,7 @@ export function TasksScreen() {
   const openCount = visible.filter((t) => t.status !== 'done').length
 
   return (
-    <div className="mx-auto max-w-md px-5 pb-28 pt-7">
+    <div className="mx-auto w-full max-w-[700px] px-5 pb-28 pt-7">
       <header className="enter mb-6">
         <p className="eyebrow">Opgaver</p>
         <h1 className="font-display mt-2 text-[2rem] leading-tight text-ink">
