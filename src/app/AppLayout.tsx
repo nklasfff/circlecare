@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { MemberSwitcher } from '@/features/identity/MemberSwitcher'
 
 const TABS = [
   { to: '/', label: 'Dækning', icon: '🛡️', end: true },
@@ -10,6 +11,9 @@ const TABS = [
 export function AppLayout() {
   return (
     <div className="flex min-h-dvh flex-col">
+      <header className="sticky top-0 z-40 border-b border-black/5">
+        <MemberSwitcher />
+      </header>
       <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>

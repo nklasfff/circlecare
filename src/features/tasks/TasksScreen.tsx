@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { format } from 'date-fns'
 import { da } from 'date-fns/locale'
 import type { Task } from '@/types/database'
@@ -9,19 +10,35 @@ import {
   useTasks,
   useTaskMutations,
 } from '@/data/hooks'
+import { useActiveMember } from '@/features/identity/ActiveMemberProvider'
+import { isCoordinator } from '@/features/identity/roles'
 import { categoryIcon, categoryLabel } from './categories'
 import { AddTaskForm } from './AddTaskForm'
+
+type Filter = 'mine' | 'all'
 
 export function TasksScreen() {
   const { data: familyId } = useFamilyId()
   const { data: members } = useMembers(familyId)
   const { data: tasks, isLoading, isError } = useTasks(familyId)
+  const { member } = useActiveMember()
 
-  const openCount = (tasks ?? []).filter((t) => t.status !== 'done').length
+  // Rolle-ansvarlige starter på "Mine"; koordinator/omsorgsmodtager på "Alle".
+  const [override, setOverride] = useState<Filter | null>(null)
+  const defaultFilter: Filter =
+    member && !isCoordinator(member) && !member.isCareRecipient ? 'mine' : 'all'
+  const filter = override ?? defaultFilter
+
+  const all = tasks ?? []
+  const visible =
+    filter === 'mine'
+      ? all.filter((t) => t.assigned_to === member?.membershipId)
+      : all
+  const openCount = visible.filter((t) => t.status !== 'done').length
 
   return (
     <div className="mx-auto max-w-md px-4 pb-24 pt-6">
-      <header className="mb-5">
+      <header className="mb-4">
         <h1 className="text-3xl font-bold">Opgaver</h1>
         <p className="mt-1 text-muted">
           {openCount === 0
@@ -29,6 +46,15 @@ export function TasksScreen() {
             : `${openCount} ${openCount === 1 ? 'opgave' : 'opgaver'} at gøre`}
         </p>
       </header>
+
+      <div className="mb-5 flex gap-2">
+        <FilterTab active={filter === 'mine'} onClick={() => setOverride('mine')}>
+          Mine
+        </FilterTab>
+        <FilterTab active={filter === 'all'} onClick={() => setOverride('all')}>
+          Alle
+        </FilterTab>
+      </div>
 
       {familyId && members && (
         <AddTaskForm familyId={familyId} members={members} />
@@ -39,18 +65,43 @@ export function TasksScreen() {
 
       {!isLoading && !isError && (
         <div className="space-y-3">
-          {(tasks ?? []).length === 0 ? (
+          {visible.length === 0 ? (
             <Card>
-              <p className="text-muted">Ingen opgaver endnu.</p>
+              <p className="text-muted">
+                {filter === 'mine'
+                  ? 'Du har ingen opgaver lige nu.'
+                  : 'Ingen opgaver endnu.'}
+              </p>
             </Card>
           ) : (
-            (tasks ?? []).map((task) => (
+            visible.map((task) => (
               <TaskRow key={task.id} task={task} members={members ?? []} />
             ))
           )}
         </div>
       )}
     </div>
+  )
+}
+
+function FilterTab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 rounded-xl px-4 py-2 font-semibold transition ${
+        active ? 'bg-primary text-white' : 'bg-surface text-primary'
+      }`}
+    >
+      {children}
+    </button>
   )
 }
 
